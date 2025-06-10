@@ -19,11 +19,13 @@ if usuario_id:
     if ficha.empty:
         st.warning("⚠️ Usuario no encontrado.")
     else:
-        nombre = ficha["Nombre_del_Depositante"].iloc[0]
-        st.subheader(f"👤 {nombre}")
-        ficha = ficha.sort_values(by="Mes")
-        st.dataframe(ficha.set_index("Mes")[[
-            "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
-            "Seguimiento", "Dias_transcurridos", "Metodo_de_pago",
-            "facturado_mensual", "Item_mensual", "Acuerdo de pago"
-        ]])
+    nombre = ficha["nombre_del_depositante"].iloc[0]
+    st.subheader(f"👤 {nombre}")
+    ficha = ficha.sort_values(by="mes")  # corregido aquí
+    columnas_a_mostrar = [
+        "deuda_inicial", "deuda_final", "documento", "estado", "mora",
+        "seguimiento", "dias_transcurridos", "metodo_de_pago",
+        "facturado_mensual", "item_mensual", "acuerdo_de_pago"
+    ]
+    columnas_disponibles = [col for col in columnas_a_mostrar if col in ficha.columns]
+    st.dataframe(ficha.set_index("mes")[columnas_disponibles])  # corregido aquí también

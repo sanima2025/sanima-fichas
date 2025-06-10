@@ -31,4 +31,4 @@ if usuario_id:
         # Filtrar solo las columnas que existen en el DataFrame 'ficha'
         columnas_disponibles = [col for col in columnas_a_mostrar if col in ficha.columns]
 
-        st.dataframe(ficha.set_index("mes")[columnas_disponibles])
+        st.dataframe(ficha.set_index("Mes")[columnas_disponibles])

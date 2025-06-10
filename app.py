@@ -21,6 +21,8 @@ if usuario_id:
     else:
         nombre = ficha["Nombre del Depositante"].iloc[0]
         st.subheader(f"👤 {nombre}")
+        print(ficha.columns) 
+        ficha.columns = ficha.columns.str.strip()# or st.write(ficha.columns) in Streamlit
         ficha = ficha.sort_values(by="Mes")
 
         columnas_a_mostrar = [

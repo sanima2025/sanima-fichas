@@ -19,14 +19,14 @@ if usuario_id:
     if ficha.empty:
         st.warning("⚠️ Usuario no encontrado.")
     else:
-        nombre = ficha["nombre_del_depositante"].iloc[0]
+        nombre = ficha["nombre del depositante"].iloc[0]
         st.subheader(f"👤 {nombre}")
-        ficha = ficha.sort_values(by="mes")
+        ficha = ficha.sort_values(by="Mes")
 
         columnas_a_mostrar = [
-            "deuda_inicial", "deuda_final", "documento", "estado", "mora",
-            "seguimiento", "dias_transcurridos", "metodo_de_pago",
-            "facturado_mensual", "item_mensual", "acuerdo_de_pago"
+            "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
+            "Seguimiento", "Dias transcurridos", "Metodo de pago",
+            "facturado_mensual", "item_mensual", "Acuerdo de pago"
         ]
         # Filtrar solo las columnas que existen en el DataFrame 'ficha'
         columnas_disponibles = [col for col in columnas_a_mostrar if col in ficha.columns]

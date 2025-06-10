@@ -19,7 +19,7 @@ if usuario_id:
     if ficha.empty:
         st.warning("⚠️ Usuario no encontrado.")
     else:
-        nombre = ficha["nombre del depositante"].iloc[0]
+        nombre = ficha["Nombre del depositante"].iloc[0]
         st.subheader(f"👤 {nombre}")
         ficha = ficha.sort_values(by="Mes")
 

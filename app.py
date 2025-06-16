@@ -32,7 +32,23 @@ if usuario_id:
             fila = {"Mes": mes}
             for col in columnas:
                 col_name = f"{col}_{mes}"
-                fila[col] = ficha[col_name].iloc[0] if col_name in ficha.columns else ""
+                if col_name in ficha.columns:
+                    valor = ficha[col_name].dropna().astype(str).replace("-", "").replace("nan", "")
+                    if valor.empty or valor.iloc[0] == "":
+                    # Buscar el primer valor válido en el resto de las columnas del mismo tipo
+                        col_alt = [c for c in ficha.columns if c.startswith(col + "_") and c != col_name]
+                        for c_alt in col_alt:
+                            val_alt = ficha[c_alt].dropna().astype(str).replace("-", "").replace("nan", "")
+                            if not val_alt.empty and val_alt.iloc[0] != "":
+                                fila[col] = val_alt.iloc[0]
+                            break
+                        else:
+                            fila[col] = ""
+                    else:
+                        fila[col] = valor.iloc[0]
+                else:
+                    fila[col] = ""
+
             
             acuerdo_raw = str(ficha[f"Acuerdo pago_{mes}"].iloc[0] if f"Acuerdo pago_{mes}" in ficha.columns else "").upper()
             if "AP" in acuerdo_raw:
@@ -64,3 +80,4 @@ if usuario_id:
 
 
     st.dataframe(ficha_df.style.applymap(resaltar_estado, subset=["Estado"]))
+

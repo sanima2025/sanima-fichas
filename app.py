@@ -54,8 +54,8 @@ if usuario_id:
 
         # Mostrar con colores
     def resaltar_estado(val):
-        if "CRITICO" in str(val).upper():
-            return "background-color: #ff4d4d; color: black"
+        if "CRÍTICO" in str(val).upper():
+            return "background-color: #f51720; color: black"
         elif "RIESGO" in str(val).upper():
             return "background-color: #ffcc00; color: black"
         elif "UN MES" in str(val).upper():

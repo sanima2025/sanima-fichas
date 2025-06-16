@@ -1,31 +1,51 @@
 import streamlit as st
 import pandas as pd
 
-# Cargar el historial ya procesado desde un archivo en línea o local
+# Cargar CSV procesado desde Drive (público)
 @st.cache_data
 def cargar_datos():
-    url = 'https://drive.google.com/uc?id=1LA45WNkpf8CsQ_NJbHunkhYuWsUEkYGM'  # Reemplaza con tu enlace CSV PÚBLICO
-    return pd.read_csv(url, dtype=str)
+    url = 'https://drive.google.com/uc?id=1LA45WNkpf8CsQ_NJbHunkhYuWsUEkYGM'
+    df = pd.read_csv(url, dtype=str)
+    return df
 
 df = cargar_datos()
 
 st.title("📄 Ficha de Usuario - SANIMA")
-
-# Entrada de DNI/ID
 usuario_id = st.text_input("🔎 Ingresa el DNI del usuario:", "")
 
 if usuario_id:
     ficha = df[df["ID"] == usuario_id.strip()]
+
     if ficha.empty:
         st.warning("⚠️ Usuario no encontrado.")
     else:
-    nombre = ficha["nombre_del_depositante"].iloc[0]
-    st.subheader(f"👤 {nombre}")
-    ficha = ficha.sort_values(by="mes")  # corregido aquí
-    columnas_a_mostrar = [
-        "deuda_inicial", "deuda_final", "documento", "estado", "mora",
-        "seguimiento", "dias_transcurridos", "metodo_de_pago",
-        "facturado_mensual", "item_mensual", "acuerdo_de_pago"
-    ]
-    columnas_disponibles = [col for col in columnas_a_mostrar if col in ficha.columns]
-    st.dataframe(ficha.set_index("mes")[columnas_disponibles])  # corregido aquí también
+        # Mostrar nombre
+        nombre_col = next((col for col in ficha.columns if "Nombre" in col), "Nombre")
+        nombre = ficha[nombre_col].iloc[0]
+        st.subheader(f"👤 {nombre}")
+
+        # Detectar columnas por mes
+        columnas_base = [
+            "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
+            "Seguimiento", "Dias transcurridos", "Metodo de pago",
+            "facturado_mensual", "Item_mensual", "Acuerdo de pago"
+        ]
+
+        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25"]
+        columnas_finales = []
+
+        for mes in meses:
+            for base in columnas_base:
+                col = f"{base}_{mes}"
+                if col in ficha.columns:
+                    columnas_finales.append(col)
+
+        # Mostrar ficha ordenada
+        columnas_mostrar = ["ID", nombre_col] + columnas_finales
+        ficha_ordenada = ficha[columnas_mostrar].T
+        ficha_ordenada.columns = ["Valor"]
+        ficha_ordenada.index.name = "Campo"
+        st.dataframe(ficha_ordenada)
+
+
+

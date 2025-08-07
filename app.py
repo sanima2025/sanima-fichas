@@ -3,7 +3,7 @@ import pandas as pd
 
 @st.cache_data
 def cargar_datos():
-    url = 'https://drive.google.com/uc?id=1LA45WNkpf8CsQ_NJbHunkhYuWsUEkYGM'
+    url = 'https://docs.google.com/spreadsheets/d/1Znkq77V6GnjwWQxy7jlH2-nz6NnHCgNnJo7Z50XQfdA/export?format=csv'
     return pd.read_csv(url, dtype=str)
 
 df = cargar_datos()
@@ -22,7 +22,7 @@ if usuario_id:
         st.subheader(f"👤 {nombre}")
 
         # Definir meses y campos
-        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25"]
+        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25","JUN25]
         campos = [
             "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
             "Seguimiento", "Dias transcurridos", "Metodo de pago",

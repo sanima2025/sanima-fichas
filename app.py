@@ -22,7 +22,7 @@ if usuario_id:
         st.subheader(f"👤 {nombre}")
 
         # Definir meses y campos
-        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25","JUN25]
+        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25","JUN25","JUL25"]
         campos = [
             "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
             "Seguimiento", "Dias transcurridos", "Metodo de pago",

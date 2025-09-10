@@ -19,7 +19,7 @@ if usuario_id:
         nombre = ficha["Nombre del Depositante"].iloc[0]
         st.subheader(f"👤 {nombre}")
 
-        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25", "JUN25", "JUL25"]
+        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25", "JUN25", "JUL25", "AGO25"]
         columnas = [
             "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
             "Seguimiento", "Dias transcurridos", "Metodo de pago",

@@ -3,8 +3,8 @@ import pandas as pd
 
 @st.cache_data
 def cargar_datos():
-    url = 'https://docs.google.com/spreadsheets/d/1f9IX4jo6BCuVej5mYBOJh0w0TEhU89HCxxzyrw6w-Es/export?format=csv'
-    return pd.read_csv(url, dtype=str)
+    url = 'https://docs.google.com/spreadsheets/d/1qFsgKxvkwtgjzCwKxuZUtN_ka-L7f-Q4aZ_ICL6ElnM/export?format=csv'
+    return pd.read_csv(url, dtype=str) 
 
 df = cargar_datos()
 st.title("📄 Ficha de Usuario - SANIMA")
@@ -19,7 +19,7 @@ if usuario_id:
         nombre = ficha["Nombre del Depositante"].iloc[0]
         st.subheader(f"👤 {nombre}")
 
-        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25", "JUN25", "JUL25", "AGO25"]
+        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25", "JUN25", "JUL25","AGO25"]
         columnas = [
             "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
             "Seguimiento", "Dias transcurridos", "Metodo de pago",

@@ -3,7 +3,7 @@ import pandas as pd
 
 @st.cache_data
 def cargar_datos():
-    url = 'https://docs.google.com/spreadsheets/d/1VExQEWteZAncjhPBJBqAcn9i1mpJTMtvDMe9CyfFdDo/export?format=csv&gid=0'
+    url = 'https://docs.google.com/spreadsheets/d/1VdW_E-B_dMKsSMeczqJEyv1YkL4U6ghY-00heiCAPUA/export?format=csv&gid=0'
     return pd.read_csv(url, dtype=str) 
 
 df = cargar_datos()

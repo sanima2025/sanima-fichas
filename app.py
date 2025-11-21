@@ -127,6 +127,7 @@ if usuario_id:
                 else:
                     fila[col] = ""
 
+            # Interpretar acuerdos
             acuerdo_col = f"Acuerdo pago_{mes}"
             acuerdos = ficha[acuerdo_col].dropna().astype(str).str.upper() if acuerdo_col in ficha.columns else []
             acuerdo_valor = "Sin observación"
@@ -143,7 +144,7 @@ if usuario_id:
                 elif "BOD" in acuerdo_raw:
                     acuerdo_valor = "Es parte de negocios aliados"
             fila["Acuerdo de pago"] = acuerdo_valor
-
+            
             # 👇 OPCIONAL: también combinar correos por mes y mapear a nombres
             col_negocio = f"Negocio_aliado_{mes}"
             if col_negocio in ficha.columns:

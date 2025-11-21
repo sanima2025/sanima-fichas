@@ -1,46 +1,259 @@
-import streamlit as st
+import streamlit as st 
 import pandas as pd
 
 @st.cache_data
 def cargar_datos():
-    url = 'https://docs.google.com/spreadsheets/d/1Znkq77V6GnjwWQxy7jlH2-nz6NnHCgNnJo7Z50XQfdA/export?format=csv'
-    return pd.read_csv(url, dtype=str)
+    url = 'https://docs.google.com/spreadsheets/d/1ilsiLLrzdMTv9yinj8_bM2JJVjaHH6sJmC6rfK_Kd7g/export?format=csv&gid=0'
+    return pd.read_csv(url, dtype=str) 
 
 df = cargar_datos()
 st.title("📄 Ficha de Usuario - SANIMA")
 
+# Helper para juntar valores de varias filas, limpiar y mantener orden
+def valores_unicos_limpios(serie, lower: bool = False):
+    if serie is None:
+        return []
+    s = serie.dropna().astype(str)
+    # eliminar placeholders
+    s = s[~s.isin(["-", "nan", "NaN", ""])]
+    vistos = set()
+    resultado = []
+    for v in s:
+        v = str(v).strip()
+        if lower:
+            v = v.lower()
+        if v and v not in vistos:
+            vistos.add(v)
+            resultado.append(v)
+    return resultado
+
 usuario_id = st.text_input("🔎 Ingresa el DNI del usuario:", "")
 
 if usuario_id:
-    ficha = df[df["ID"] == usuario_id.strip()]
+    # puede haber varias filas para el mismo ID
+    ficha = df[df["ID"].astype(str) == usuario_id.strip()]
     if ficha.empty:
         st.warning("⚠️ Usuario no encontrado.")
     else:
-        # Mostrar nombre
-        nombre_col = next((col for col in ficha.columns if "Nombre" in col), "Nombre")
-        nombre = ficha[nombre_col].iloc[0]
+        nombre = ficha["Nombre del Depositante"].iloc[0]
         st.subheader(f"👤 {nombre}")
 
-        # Definir meses y campos
-        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25","JUN25","JUL25"]
-        campos = [
+        meses = ["ENE25", "FEB25", "MAR25", "ABR25", "MAY25",
+                 "JUN25", "JUL25", "AGO25", "SET25", "OCT25"]
+        columnas = [
             "Deuda_inicial", "Deuda_final", "Documento", "Estado", "Mora",
             "Seguimiento", "Dias transcurridos", "Metodo de pago",
-            "facturado_mensual", "Item_mensual", "Acuerdo de pago"
+            "facturado_mensual", "Item_mensual",
+            "Fecha_pago", "Negocio_aliado", "Nro_Operación"
         ]
 
-        # Construir lista de dicts con info por mes
-        datos = []
+        mapa_negocios = {
+            "negociosanima01@gmail.com": "Bodega Madeley",
+            "agentecobranza@sanima.pe": "Equipo de Cobranzas - Nicol",
+            "yeany.mercado@sanima.pe": "Analista de Facturación",
+            "gabriela.castro@sanima.pe": "Analista de Negocios Aliados",
+            "agente.cobranza2@sanima.pe": "Equipo de Cobranzas - Wendy",
+            "atencionusuario@sanima.pe": "Atención al usuario",
+            "negociosanima02@gmail.com": "Bodega Mery",
+            "negociosanima03@gmail.com": "La Bodega J.L.A",
+            "negociosanima04@gmail.com": "Librería Teresa",
+            "negociosanima05@gmail.com": "Bodega Emma",
+            "negociosanima06@gmail.com": "Bodega Andreita",
+            "negociosanima10@gmail.com": "Centro de fisioterapia Sadit",
+            "negociosanima12@gmail.com": "Licorería 56",
+            "negociosanima13@gmail.com": "Bodega Martha",
+            "negociosanima14@gmail.com": "Bodega Comboni - FIorella",
+            "negociosanima15@gmail.com": "Licorería El Desencanto",
+            "negociosanima16@gmail.com": "Bodega Sarita",
+            "negociosanima18@gmail.com": "Bodega Charada",
+            "negociosanima19@gmail.com": "Bodega Cielo",
+            "negociosanima21@gmail.com": "Bodega KIN",
+            "negociosanima22@gmail.com": "Bodega Toki - Toki",
+            "negociosanima26@gmail.com": "Bodega Vicky",
+            "negociosanima27@gmail.com": "Bodega San Juan Bautista",
+            "negociosanima28@gmail.com": "Bodega Geraldine",
+            "negociosanima29@gmail.com": "Bodega Maria",
+            "negociosanima30@gmail.com": "Bodega Marisol",
+            "negociosanima31@gmail.com": "Bodega Cáceres",
+            "negociosanima33@gmail.com": "Bodega Matias",
+            "negociosanima34@gmail.com": "Centro de pago Nadine Heredia",
+            "negociosanima35@gmail.com": "Bodega Laurita",
+            "negociosanima36@gmail.com": "SugarCase",
+            "negociosanima38@gmail.com": "Bodega Flor",
+            "negociosanima39@gmail.com": "Bodega Balvina",
+            "negociosanima40@gmail.com": "Bodega Marina",
+            "negociosanima41.2@gmail.com": "Centro de pago Reyna",
+            "negociosanima42@gmail.com": "Bodega Carmen",
+            "negociosanima43@gmail.com": "Bodega Ana",
+            "negociosanima45@gmail.com": "Librería Goyo",
+            "negociosanima50@gmail.com": "Bodega Mary",
+            "negociosanima47@gmail.com": "Bodega Sonia",
+            "negociosanima48@gmail.com": "Bodega Mila",
+            "negociosanima49@gmail.com": "Licorería Aspid",
+            "negociosanima51@gmail.com": "Bodega Abad",
+            "negociosanima52@gmail.com": "Centro de pago Balboa",
+            "negociosanima53@gmail.com": "Bodega Nany",
+            "negociosanima54@gmail.com": "Bodega David",
+            "negociosanima55@gmail.com": "Bodega Lea",
+            "negociosanima56@gmail.com": "Bodega Los Ancashinos",
+            "negociosanima57@gmail.com": "Bodega Olga",
+            "negociosanima58@gmail.com": "Bodega Arteaga",
+            "negociosanima59@gmail.com": "Bodega - Bazar Kelly - Amy",
+            "negociosanima60@gmail.com": "Bodega Jhustin",
+            "negociosanima61@gmail.com": "Bodega Freddy",
+            "negociosanima62@gmail.com": "Panadería-Pastelería Adrianito",
+            "negociosanima63@gmail.com": "Bodega Soledad",
+            "negociosanima64@gmail.com": "Libreria - Bazar Tinka Wasi",
+            "negociosanima65@gmail.com": "Bodega Giselle",
+            "negociosanima66@gmail.com": "Bodega Paulita",
+            "negociosanima67@gmail.com": "Bodega Meiling",
+            "negociosanima68@gmail.com": "Bodega Yesica",
+            "negociosanima69@gmail.com": "Bodega Erika",
+            "negociosanima70@gmail.com": "Bodega restaurante Wicho",
+            "negociosanima71@gmail.com": "Bodega Hair y hermanas",
+            "negociosanima72@gmail.com": "Bodega J y R",
+            "negociosanima74@gmail.com": "Bodega Nicolle",
+            "negociosanima76@gmail.com": "Libreria Kael",
+            "negociosanima77@gmail.com": "Libreria Bazar Lucy",
+            "negociosanima78@gmail.com": "Bodega Valentina",
+            "atencion.usuario@sanima.pe": "Atención al Usuario"
+        }
+
+        data = []
         for mes in meses:
             fila = {"Mes": mes}
-            for campo in campos:
-                col = f"{campo}_{mes}"
-                fila[campo] = ficha[col].iloc[0] if col in ficha.columns else ""
-            datos.append(fila)
 
-        ficha_vertical = pd.DataFrame(datos)
-        st.dataframe(ficha_vertical)
+            # 1) Todas las columnas, combinando valores de TODAS las filas del usuario
+            for col in columnas:
+                col_name = f"{col}_{mes}"
+                if col_name in ficha.columns:
+                    vals = valores_unicos_limpios(ficha[col_name])
+                    fila[col] = " / ".join(vals) if vals else ""
+                else:
+                    fila[col] = ""
 
+            # 2) Interpretar Acuerdo de pago (usa todas las filas de ese mes)
+            acuerdo_col = f"Acuerdo pago_{mes}"
+            acuerdo_valor = "Sin observación"
+            if acuerdo_col in ficha.columns:
+                acuerdos = valores_unicos_limpios(ficha[acuerdo_col], lower=True)
+                for acuerdo_raw in acuerdos:
+                    if "ap" in acuerdo_raw:
+                        acuerdo_valor = "Solicitó Acuerdo de pago"
+                        break
+                    elif "des" in acuerdo_raw:
+                        acuerdo_valor = "Solicitó desinstalarse"
+                    elif "dpd" in acuerdo_raw:
+                        acuerdo_valor = "Cobranzas solicitó su desinstalación"
+                    elif "1er" in acuerdo_raw:
+                        acuerdo_valor = "Primer mes en el servicio"
+                    elif "bod" in acuerdo_raw:
+                        acuerdo_valor = "Es parte de negocios aliados"
+            fila["Acuerdo de pago"] = acuerdo_valor
+
+            # 3) Nombre del negocio aliado (puede haber varios correos en ese mes)
+            col_negocio = f"Negocio_aliado_{mes}"
+            if col_negocio in ficha.columns:
+                correos = valores_unicos_limpios(ficha[col_negocio], lower=True)
+                nombres = []
+                for correo in correos:
+                    nombres.append(mapa_negocios.get(correo, "No identificado"))
+                # quitar duplicados manteniendo orden
+                vistos_n = set()
+                nombres_unicos = []
+                for n in nombres:
+                    if n not in vistos_n:
+                        vistos_n.add(n)
+                        nombres_unicos.append(n)
+                fila["Nombre del negocio aliado"] = " / ".join(nombres_unicos) if nombres_unicos else "No identificado"
+            else:
+                fila["Nombre del negocio aliado"] = "No identificado"
+
+            data.append(fila)
+
+        ficha_df = pd.DataFrame(data)
+
+        # --- Indicador de hábito de pago y advertencia usando TODAS las filas ---
+        dias_pago = []
+        pagos_despues_17 = 0
+        pagos_despues_25 = 0
+
+        for mes in meses:
+            col_fecha = f"Fecha_pago_{mes}"
+            if col_fecha not in ficha.columns:
+                continue
+
+            fechas_raw = valores_unicos_limpios(ficha[col_fecha])
+            for fecha_pago_raw in fechas_raw:
+                fecha_pago_raw = str(fecha_pago_raw).strip()
+                if not fecha_pago_raw or fecha_pago_raw.lower() == "nan":
+                    continue
+
+                # Puede haber varias fechas en la misma celda
+                delimitadores = ["/", ",", ";", " "]
+                fechas = [fecha_pago_raw]
+                for d in delimitadores:
+                    if d in fecha_pago_raw:
+                        fechas = [f.strip() for f in fecha_pago_raw.split(d) if f.strip()]
+                        break
+
+                for fecha in fechas:
+                    dia = None
+                    if "-" in fecha:  # 2025-06-18
+                        partes = fecha.split("-")
+                        if len(partes) == 3 and partes[2].isdigit():
+                            dia = int(partes[2])
+                    elif fecha.count("/") == 2:  # 18/06/2025
+                        partes = fecha.split("/")
+                        if len(partes) == 3 and partes[0].isdigit():
+                            dia = int(partes[0])
+                    elif fecha.isdigit():  # solo día
+                        dia = int(fecha)
+
+                    if dia and 1 <= dia <= 31:
+                        dias_pago.append(dia)
+                        if 17 <= dia <= 31:
+                            pagos_despues_17 += 1
+                        if 25 <= dia <= 31:
+                            pagos_despues_25 += 1
+
+        # ADVERTENCIA si paga más de 3 veces tarde (día 25 a 31)
+        if pagos_despues_25 > 3:
+            st.error(
+                f"⚠️ Este usuario ha pagado tarde (del día 25 al 31) en **{pagos_despues_25} meses**. ¡Requiere seguimiento especial!"
+            )
+
+        if dias_pago:
+            if pagos_despues_25 >= len(dias_pago) * 0.5:
+                indicador = "🔴 Suele pagar muy tarde en el mes (después del 25)."
+                color = "#FF4B4B"
+            elif pagos_despues_17 >= len(dias_pago) * 0.5:
+                indicador = "🟠 Tendencia a pagar del 17 al fin de mes."
+                color = "#FFD600"
+            else:
+                indicador = "🟢 Suele pagar temprano (antes del día 17)."
+                color = "#8BC34A"
+
+            st.markdown(
+                f"<div style='background-color:{color};color:black;padding:0.6em;border-radius:8px;font-weight:bold'>"
+                f"**Indicador de hábito de pago:** {indicador}"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.info("No hay información de pagos registrada para este usuario.")
+
+        # --- Mostrar la ficha con colores ---
+        def resaltar_estado(val):
+            if "CRÍTICO" in str(val).upper():
+                return "background-color: #f51720; color: black"
+            elif "RIESGO" in str(val).upper():
+                return "background-color: #ffcc00; color: black"
+            elif "UN MES" in str(val).upper():
+                return "background-color: #90ee90; color: black"
+            return "color: black"
+
+        st.dataframe(ficha_df.style.applymap(resaltar_estado, subset=["Estado"]))
 
 
 

@@ -8,7 +8,24 @@ def cargar_datos():
 
 df = cargar_datos()
 st.title("📄 Ficha de Usuario - SANIMA")
-
+# 👇 NUEVO: helper para juntar todos los valores de una columna en una sola línea
+def combinar_valores(serie, to_lower=False):
+    if serie is None:
+        return ""
+    s = serie.dropna().astype(str)
+    # eliminar placeholders
+    s = s[~s.isin(["-", "nan", "NaN", ""])]
+    vistos = set()
+    resultado = []
+    for v in s:
+        v = v.strip()
+        if to_lower:
+            v = v.lower()
+        if v and v not in vistos:
+            vistos.add(v)
+            resultado.append(v)
+    return " / ".join(resultado)
+    
 usuario_id = st.text_input("🔎 Ingresa el DNI del usuario:", "")
 
 if usuario_id:
@@ -102,13 +119,11 @@ if usuario_id:
         data = []
         for mes in meses:
             fila = {"Mes": mes}
+            # 👇 AQUÍ EL CAMBIO CLAVE: usar combinar_valores
             for col in columnas:
                 col_name = f"{col}_{mes}"
                 if col_name in ficha.columns:
-                    valores = ficha[col_name].dropna().astype(str)
-                    valores = valores.replace("-", "").replace("nan", "").tolist()
-                    valores_limpios = list({v.strip() for v in valores if v.strip()})
-                    fila[col] = " / ".join(valores_limpios) if valores_limpios else ""
+                    fila[col] = combinar_valores(ficha[col_name])
                 else:
                     fila[col] = ""
 
@@ -129,13 +144,24 @@ if usuario_id:
                     acuerdo_valor = "Es parte de negocios aliados"
             fila["Acuerdo de pago"] = acuerdo_valor
 
+            # 👇 OPCIONAL: también combinar correos por mes y mapear a nombres
             col_negocio = f"Negocio_aliado_{mes}"
-            correo = str(ficha[col_negocio].iloc[0]).strip().lower() if col_negocio in ficha.columns else ""
-            nombre_negocio = mapa_negocios.get(correo, "No identificado")
-            fila["Nombre del negocio aliado"] = nombre_negocio
+            if col_negocio in ficha.columns:
+                correos = combinar_valores(ficha[col_negocio], to_lower=True)
+                correos_lista = correos.split(" / ") if correos else []
+                nombres = []
+                vistos_nombres = set()
+                for c in correos_lista:
+                    nombre_neg = mapa_negocios.get(c, "No identificado")
+                    if nombre_neg not in vistos_nombres:
+                        vistos_nombres.add(nombre_neg)
+                        nombres.append(nombre_neg)
+                fila["Nombre del negocio aliado"] = " / ".join(nombres) if nombres else "No identificado"
+            else:
+                fila["Nombre del negocio aliado"] = "No identificado"
 
             data.append(fila)
-
+            
         ficha_df = pd.DataFrame(data)
         # --- Indicador de hábito de pago y advertencia ---
         dias_pago = []

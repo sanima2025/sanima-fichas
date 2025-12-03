@@ -170,7 +170,8 @@ if usuario_id:
         pagos_despues_17 = 0
         pagos_despues_25 = 0
 
-
+        ficha_serie = ficha.iloc[0]  # Solo una fila (usuario único)
+        
         for mes in meses:
             fecha_pago_raw = str(ficha_serie.get(f"Fecha_pago_{mes}", "")).strip()
             if not fecha_pago_raw or fecha_pago_raw.lower() == "nan":
